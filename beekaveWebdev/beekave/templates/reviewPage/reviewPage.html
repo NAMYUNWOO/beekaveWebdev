@@ -1,0 +1,154 @@
+{% load static from staticfiles %}
+{% load self_defined_filters %}
+<html>
+<head>
+  <title>BeeKave - Movie Reviews, Game Reviews, and TV Reviews</title>
+
+  <meta name="description" content="Beekave aggregates music, game, tv, and movie reviews from social bigdata">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="application-name" content="Beekave">
+  <meta name="msapplication-TileColor" content="#000000">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="{% static "/bootstrap/css/bootstrap.css" %}" type="text/css">
+  <script src="{% static "/bootstrap/js/bootstrap.min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "/css/global.css" %}" type="text/css">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+
+  <link rel="canonical" href="http://www.beekave.com" />
+
+
+
+
+</head>
+<body>
+	<div class="row">
+        <div class="col-xs-12 col-sm-8">
+          {% with request.get_full_path as fullpath %}
+          <span><a type="button" class="btn btn-default btn-sm {% if fullpath|Order_is:'recommend' %} bold_redBorder {% endif %}" href="{{ fullpath|parentsUrls}}recommend/p1">호감순</a>&nbsp
+                <a type="button" class="btn btn-default btn-sm {% if fullpath|Order_is:'date' %} bold_redBorder {% endif %}" href="{{ fullpath|parentsUrls}}date/p1">최신순</a>&nbsp
+                <a type="button" class="btn btn-default btn-sm {% if fullpath|Order_is:'score' %} bold_redBorder {% endif %}" href="{{ fullpath|parentsUrls}}score/p1">평점 <span class="glyphicon glyphicon-arrow-up"></span></a>&nbsp
+                <a type="button" class="btn btn-default btn-sm {% if fullpath|Order_is:'-score' %} bold_redBorder {% endif %}" href="{{ fullpath|parentsUrls}}-score/p1">평점 <span class="glyphicon glyphicon-arrow-down"></span></a>&nbsp
+          </span>&nbsp
+          {%endwith %}
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <!--
+          <form action = "." method="post">{% csrf_token %}
+            {{ form.as_table }}
+            <input type="submit" value="검색" />
+          </form>
+          -->
+            <div id="custom-search-input">
+                <div class="input-group col-md-12">
+                    <input type="text" id="searChBarTxt" class="form-control input-sm"  placeholder="리뷰검색" />
+                    <span class="input-group-btn">
+                        <button onclick="getSearchWord()" class="btn btn-info btn-lg" type="button">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </span>
+                    <script>
+                      function getSearchWord(){
+                        var txt = document.getElementById("searChBarTxt").value;
+                        if (txt == ""){
+                          alert("검색어를 입력해주세요")
+                          return
+                        }
+                        txt = txt.replace(/[^a-zA-Z가-힣0-9]/gi,"_");
+                        var path = window.location.pathname.split('/')
+                        var pathParent = path.slice(0,3)
+                        pathParent.push(path[3].split('&')[0]+'&'+txt)
+                        pathParent.push("p1")
+                        location.href=pathParent.join('/')
+                      }
+                    </script>
+                </div>
+            </div>
+
+        </div>
+	</div>
+</br>
+{%if reviewList %}
+{% for review in reviewList %}
+  <div class="rating-block">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="bs-glyphicons">
+          <span class="bs-glyphicons-list">
+            {% for i in review.score|iterInt %}
+              <span class="glyphicon glyphicon-star star-color"></span>
+            {% endfor %}
+            {% for i in review.score|iterFloat %}
+              <span class="glyphicon glyphicon-star star-color half"></span>
+            {% endfor %}
+          </span>
+          <span class="bold">&nbsp {{ review.score|getDecScore }}</span>
+      </div>
+      <div class="review-block-description">{{review.comment}}</div>
+      <div class="col-xs-12 nopadding" align="left">
+        <div class="review-block-userInfo " ><a href="#">{{review.reviewUser}}</a><span> | </span><span>{{review.date|date:"Y-m-d"}}</span></div>
+      </div>
+    </div>
+    <div align="right">
+      <span><input type="button" class="like"  name="{{ review.pk }}" value="공감">&nbsp<span style="color:e60000;" id="likeCount-{{ review.pk }}" >{{review.recommend}}</span></a>&nbsp&nbsp
+      <span><input type="button" class="dislike"  name="{{ review.pk }}" value="비공감">&nbsp<span style="color:0033cc;" id="dislikeCount-{{ review.pk }}">{{review.nonRecommend}}</span></a>&nbsp
+    </span>&nbsp
+  </div>
+
+  </div>
+</div>
+</br>
+{% endfor %}
+{% endif %}
+
+<script type="text/javascript">
+$(".like").click(function(){
+  var pk = $(this).attr('name')
+  $.ajax({ // .like 버튼을 클릭하면 <새로고침> 없이 ajax로 서버와 통신하겠다.
+    type: "POST", // 데이터를 전송하는 방법을 지정
+    url: "{%  url 'review_like' %}", // 통신할 url을 지정
+    data: {'pk': pk, "type":'m','csrfmiddlewaretoken': '{{ csrf_token }}'}, // 서버로 데이터 전송시 옵션
+    dataType: "json", // 서버측에서 전송한 데이터를 어떤 형식의 데이터로서 해석할 것인가를 지정, 없으면 알아서 판단
+    // 서버측에서 전송한 Response 데이터 형식 (json)
+    // {'likes_count': post.like_count, 'message': message }
+    success: function(response){ // 통신 성공시 - 동적으로 좋아요 갯수 변경, 유저 목록 변경
+      $("#likeCount-"+pk).html(response.like_count);
+      if (response.message != "success"){
+        alert(response.message)
+      }
+    },
+  });
+})
+</script>
+<script type="text/javascript">
+$(".dislike").click(function(){
+  var pk = $(this).attr('name')
+  $.ajax({ // .unlike 버튼을 클릭하면 <새로고침> 없이 ajax로 서버와 통신하겠다.
+    type: "POST", // 데이터를 전송하는 방법을 지정
+    url: "{%  url 'review_dislike' %}", // 통신할 url을 지정
+    data: {'pk': pk, "type":'m','csrfmiddlewaretoken': '{{ csrf_token }}'}, // 서버로 데이터 전송시 옵션
+    dataType: "json", // 서버측에서 전송한 데이터를 어떤 형식의 데이터로서 해석할 것인가를 지정, 없으면 알아서 판단
+    // 서버측에서 전송한 Response 데이터 형식 (json)
+    // {'likes_count': post.like_count, 'message': message }
+    success: function(response){ // 통신 성공시 - 동적으로 좋아요 갯수 변경, 유저 목록 변경
+      $("#dislikeCount-"+pk).html(response.dislike_count);
+      if (response.message != "success"){
+        alert(response.message)
+      }
+    },
+  });
+})
+</script>
+
+  </body>
+  <ul class="pager">
+  <li><a onclick="moveToReviewTop()" href="{{ request.get_full_path|decrPage }}">❮ 이전 페이지</a></li>
+  <li><a onclick="moveToReviewTop()" href="{{ request.get_full_path|incrPage }}">다음 페이지 ❯</a></li>
+  <script>
+    function moveToReviewTop(){
+      document.getElementById("searChBarTxt").scrollIntoView();
+    }
+  </script>
+</ul>
+</html>

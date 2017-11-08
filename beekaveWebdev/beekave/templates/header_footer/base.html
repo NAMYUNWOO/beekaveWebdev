@@ -1,0 +1,107 @@
+{% load static from staticfiles %}
+{% load self_defined_filters %}
+{% load widget_tweaks %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BeeKave - Movie Reviews, Game Reviews, and TV Reviews</title>
+
+  <meta name="description" content="Beekave aggregates music, game, tv, and movie reviews from social bigdata">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="application-name" content="Beekave">
+  <meta name="msapplication-TileColor" content="#000000">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="{% static "/bootstrap/css/bootstrap.css" %}" type="text/css">
+  <script src="{% static "/bootstrap/js/bootstrap.min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "/css/global.css" %}" type="text/css">
+  <link rel="stylesheet" href= "{% static "/css/frontdoor/base.css" %}" type="text/css">
+  <link rel="stylesheet" href="{% static "/css/frontdoor/homepage_banner.css" %}" type="text/css">
+  <script type="text/javascript" src="{% static "/starRating/js/star-rating.js" %}"></script>
+  <link rel="stylesheet" href="{% static "/starRating/css/star-rating.css" %}" media="all" rel="stylesheet" type="text/css">
+  <script type="text/javascript" src="{% static "/js/global.js" %}"></script>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+
+  <link rel="canonical" href="http://www.beekave.com" />
+
+</head>
+<body>
+  <div class="content">
+  <nav class="navbar navbar-inverse  navbar-static-top nopadding" style="background-color:black;" role="navigation">
+    <div class="navbar-header" style="color:white;">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/"><img src="{% static  "/images/mlogo.png" %}" style="width:100px" alt="beekave logo"></a>
+    </div>
+    <div id="search-container" class="col-md-6 col-md-offset-1 col-sm-5 col-sm-offset-1" style="margin:10px">
+      <div class="row">
+        <div class="input-group" style="width: 300px;">
+          <input name="searchbar" id="searchbar" class="form-control ui-autocomplete-input" autocomplete="on" value="" placeholder="영화 검색">
+          <div class="input-group-addon"><a id="validation" onclick="validSearch();"><span class="glyphicon glyphicon-search"></span></a></div>
+        </div>
+      </div>
+    </div>
+    <div class="collapse navbar-collapse navbar-ex1-collapse" style="color:white;">
+      <ul class="nav navbar-nav navbar-right">
+        {% if user.is_active %}
+        <li><a class="welcome">Welcome, <strong>{% firstof user.get_short_name user.get_username %}</strong> </a></li>
+        <li><a href="{% url 'password_change' %}">Change Password</a> </li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+
+        {% else %}
+        <li><a class="welcome">Welcome, Anonymous </a></li>
+        <li><a href="{% url 'login' %}">Login</a> </li>
+        <li><a href="{% url 'register' %}">Register</a></li>
+        {% endif %}
+      </ul>
+      <div class="col-sm-3 col-md-3 pull-right">
+      </div>
+    </div>
+  </nav>
+  {% block content %}
+  {% endblock %}
+  </div>
+  <div id="mastfoot">
+    <footer id="bottom_footer">
+      <div class="site_links upper">
+        <a href="http://www.beekave.com/movie">
+          <span>Movie</span>
+        </a>
+        <a href="http://www.beekave.com/game">
+          <span>Game</span>
+        </a>
+        <a href="http://www.beekave.com/tv">
+          <span>tv</span>
+        </a>
+        <a href="http://www.beekave.com/feature">
+          <span>Features</span>
+        </a>
+      </div>
+
+      <div class="pad_top1 pad_btm1">
+        <div class="social_round">
+          <a href="http://www.facebook.com/beekave" target="_blank" rel="noopener"><i class="fa fa-facebook"></i></a>
+          <a href="http://twitter.com/beekave" target="_blank" rel="noopener"><i class="fa fa-twitter"></i></a>
+        </div>
+      </div>
+
+
+      <div class="about_cbs">
+        <div id="footer_about_links">
+          <span class="link_divider">|</span><a href="http://www.beekave.com/faq">FAQ</a>
+          <span class="link_divider">|</span><a href="http://www.beekave.com/about-beekave">About beekave</a>
+          <span class="link_divider">|</span><a href="http://www.beekave.com/contact-us">Contact</a>
+        </div>
+        <div id="footer_rights" class="pad_btm2">
+          &copy; 2017 Beekave Inc. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+  </body>
+  </html>

@@ -1,0 +1,85 @@
+{% load static from staticfiles %}
+{% load self_defined_filters %}
+<html>
+<head>
+  <title>BeeKave - Movie Reviews, Game Reviews, and TV Reviews</title>
+
+  <meta name="description" content="Beekave aggregates music, game, tv, and movie reviews from social bigdata">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="application-name" content="Beekave">
+  <meta name="msapplication-TileColor" content="#000000">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="{% static "/bootstrap/css/bootstrap.css" %}" type="text/css">
+  <script src="{% static "/bootstrap/js/bootstrap.min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "/css/global.css" %}" type="text/css">
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+
+  <link rel="canonical" href="http://www.beekave.com" />
+
+
+
+
+</head>
+<body>
+	<div class="row">
+        <div class="col-xs-9 ">
+          <span><button type="button" class="btn btn-default btn-sm bold" src="#"  style="border-color:red;">호감순</button>&nbsp
+                <button type="button" class="btn btn-default btn-sm " src="#" >최신순</button>&nbsp
+                <button type="button" class="btn btn-default btn-sm " src="#">평점 높은순</button>&nbsp
+                <button type="button" class="btn btn-default btn-sm " src="#">평점 낮은순</button>&nbsp
+          </span>&nbsp
+        </div>
+        <div class="col-xs-3">
+            <div id="custom-search-input">
+                <div class="input-group col-md-12">
+                    <input type="text" class="form-control input-sm" placeholder="리뷰검색" />
+                    <span class="input-group-btn">
+                        <button class="btn btn-info btn-lg" type="button">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+        </div>
+	</div>
+</br>
+{%if reviewList %}
+{% for review in reviewList %}
+  <div class="rating-block">
+  <div class="row">
+    <div class="col-xs-12">
+      <div class="bs-glyphicons">
+          <span class="bs-glyphicons-list">
+            {% for i in review.score|iterInt %}
+              <span class="glyphicon glyphicon-star star-color"></span>
+            {% endfor %}
+            {% for i in review.score|iterFloat %}
+              <span class="glyphicon glyphicon-star star-color half"></span>
+            {% endfor %}
+          </span>
+          <span class="bold">&nbsp {{ review.score|getDecScore }}</span>
+      </div>
+      <div class="review-block-description">{{review.comment}}</div>
+      <div class="col-xs-12 nopadding" align="left">
+        <div class="review-block-userInfo " ><a href="#">{{review.user}}</a><span> | </span><span>{{review.date|date:"Y-m-d"}}</span></div>
+      </div>
+    </div>
+    <div align="right">
+      <span><button type="button" class="btn btn-default btn-xs bold" >공감 <span style="color:e60000;">{{review.recommend}}</span></button>&nbsp
+    <button type="button" class="btn btn-default btn-xs bold">비공감 <span style="color:#0033cc;">{{review.nonRecommend}}</span></button>
+  </span>&nbsp
+</div>
+  </div>
+</div>
+</br>
+{% endfor %}
+{% endif %}
+
+  </body>
+  <ul class="pager">
+  <li><a href="{{ request.get_full_path|decrPage }}">❮ 이전 페이지</a></li>
+  <li><a href="{{ request.get_full_path|incrPage }}">다음 페이지 ❯</a></li>
+</ul>
+</html>
